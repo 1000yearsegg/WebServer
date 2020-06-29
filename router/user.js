@@ -1,5 +1,7 @@
 const express = require('express')
 const Result = require('../models/Result.js')
+const userService = require('../services/user')
+const boom = require('boom')
 const { login, findUser } = require('../services/user')
 const { body, validationResult } = require('express-validator')
 const jwt = require('jsonwebtoken')
@@ -52,6 +54,24 @@ router.get('/info', function(req, res){
             }
         })
     }
+})
+
+// 获取用户列表
+router.get('/list', function(req, res, next) {
+    userService.listUser(req.query).then(({list, count, page, pageSize}) => {
+        new Result(
+            list,
+            '获取用户列表成功',
+            {
+                page: Number(page),
+                pageSize: Number(pageSize),
+                total: count || 0
+            }).success(res)
+    })
+    .catch(err => {
+        console.log('/user/list', err);
+        next(boom.badImplementation(err));
+    })
 })
 
 

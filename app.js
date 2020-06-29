@@ -16,11 +16,11 @@ app.use(cors())
 app.use('/', router)
 
 // 使 express 监听 9000 端口号发起的http请求
-// const server = app.listen(9000, function () {
-//     const { address, port } = server.address()
-//     console.log('Http server is running on http://%s:%s', address, port)
-// })
-const server = app.listen(9999, function () {
+const server = app.listen(9000, function () {
     const { address, port } = server.address()
     console.log('Http server is running on http://%s:%s', address, port)
 })
+// const server = app.listen(9999, function () {
+//     const { address, port } = server.address()
+//     console.log('Http server is running on http://%s:%s', address, port)
+// })
