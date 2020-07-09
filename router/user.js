@@ -1,4 +1,5 @@
 const express = require('express')
+const User = require('../models/User')
 const Result = require('../models/Result.js')
 const userService = require('../services/user')
 const boom = require('boom')
@@ -72,6 +73,64 @@ router.get('/list', function(req, res, next) {
         console.log('/user/list', err);
         next(boom.badImplementation(err));
     })
+})
+
+// 新增用户
+router.post('/add', function(req, res, next) {
+    req.body.password = md5(`${req.body.password}${PWD_SALT}`);
+    const user = new User(req.body);
+    userService.insertUser(user)
+    .then(() => {
+        new Result().success(res)
+    })
+    .catch(err => {
+        console.log('/user/add', err);
+        next(boom.badImplementation(err));
+    })
+})
+
+// 编辑用户
+router.put('/edit', function(req, res, next) {
+    req.body.password = md5(`${req.body.password}${PWD_SALT}`);
+    const user = new User(req.body);
+    userService.updateUser(user)
+    .then(() => {
+        new Result().success(res)
+    })
+    .catch(err => {
+        console.log('/user/edit', err);
+        next(boom.badImplementation(err));
+    })
+})
+
+// 获取用户
+router.get('/get', function(req, res, next) {
+    const { userName } = req.query;
+    if(!userName) {
+        next(boom.badRequest(new Error('参数userName不能为空')))
+    }
+    else {
+        userService.getUser(userName).then(user => { new Result(user).success(res)
+        }).catch(err => {
+            console.log('/user/get', err);
+            next(boom.badImplementation(err));
+        })
+    }
+})
+
+// 删除用户
+router.get('/delete', function(req, res, next) {
+    const { userName } = req.query;
+    if(!userName) {
+        next(boom.badRequest(new Error('参数userName不能为空')))
+    }
+    else {
+        userService.deleteUser(userName).then(user => { new Result(null, '删除成功').success(res)
+        }).catch(err => {
+            console.log('/user/delete', err);
+            next(boom.badImplementation(err));
+        })
+    }
 })
 
 

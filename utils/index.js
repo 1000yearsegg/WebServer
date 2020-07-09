@@ -2,6 +2,10 @@ const crypto = require('crypto')
 const jwt = require('jsonwebtoken')
 const { PRIVATE_KEY } = require('./constant')
 
+function isObject(o) {
+    return Object.prototype.toString.call(o) === '[object Object]'
+  }
+
 function decode(req) {
     const authorization = req.get('Authorization')
     let token = '';
@@ -19,5 +23,5 @@ function md5(s) {
 }
 
 module.exports = {
-    md5,decode
+    md5,decode,isObject
 }
