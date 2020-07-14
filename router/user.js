@@ -6,8 +6,10 @@ const boom = require('boom')
 const { login, findUser } = require('../services/user')
 const { body, validationResult } = require('express-validator')
 const jwt = require('jsonwebtoken')
-const { md5, decode, PWD_SALT } = require('../utils')
+const { md5, decode, PWD_SALT, millisecond2Date } = require('../utils')
 const { PRIVATE_KEY, JWT_EXPIRED } = require('../utils/constant')
+const multer = require('multer')
+const { UPLOAD_PATH } = require('../utils/constant')
 
 const router = express.Router()
 
@@ -48,6 +50,12 @@ router.get('/info', function(req, res){
         findUser(decoded.username).then(user => {
             if(user) {
                 user.roles = [user.role];
+                try {
+                    user.avatar = JSON.parse(user.avatar).url;
+                } catch (error) {
+                    console.log('获取当前用户头像失败', error);
+                }
+                
                 new Result(user, '获取用户信息成功').success(res)
             }
             else {
@@ -133,5 +141,31 @@ router.get('/delete', function(req, res, next) {
     }
 })
 
+// 上传头像
+const storage = multer.diskStorage({
+    destination: `${UPLOAD_PATH}/attachment/image/` + millisecond2Date(new Date().getTime(), 'YYYY_MM_DD'),
+    filename(req,file,cb){
+        var singfileArray = file.originalname.split('.'),
+            fileExtension = singfileArray[singfileArray.length - 1];
+        cb(null, singfileArray[0] + '_' + Date.now() + "." + fileExtension);
+    }
+  });
+
+router.post(
+    '/uploadAvatar',
+    multer({
+        storage
+    }).single('file'),
+    function(req, res, next) {
+        if( !req.file || req.file.length === 0) {
+            new Result(null, '上传头像失败').fail(res);
+        }
+        else {
+            var imagePath = req.file.destination.substring(req.file.destination.indexOf('/image/') + 1) + '/' + req.file.filename;
+            new Result({'path': req.file.destination + '/' + req.file.filename, 'url': 'http://10.100.44.29:8089/' + imagePath, 'name': req.file.filename }, '上传头像成功').success(res); 
+            // new Result({'path': req.file.destination + '/' + req.file.filename, 'url': 'http://192.168.0.136:8089/' + imagePath, 'name': req.file.filename }, '上传头像成功').success(res);   
+        }
+    }
+)
 
 module.exports = router;

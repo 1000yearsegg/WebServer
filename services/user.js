@@ -1,6 +1,7 @@
 const User = require('../models/User')
 const { querySql, queryOne } = require('../db')
 const db = require('../db')
+const { isObject} = require('../utils/index')
 
 function login(username, password) {
     const sql = `select * from admin_user where username='${username}' and password='${password}'`
@@ -44,6 +45,16 @@ async function listUser(query) {
     userSql = `${userSql} limit ${pageSize} offset ${offset}`
     const count = await db.querySql(countSql);
     const list = await db.querySql(userSql);
+
+    list.forEach(element => {
+        if(element.avatar) {
+            try {
+                element.avatar = JSON.parse(element.avatar).url;
+            } catch (error) {
+                console.log('获取列表头像失败----', error);
+            }
+        }
+    });
 
     return {list, count: count[0].count, page, pageSize};
 }

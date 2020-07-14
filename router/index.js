@@ -13,7 +13,7 @@ const {
 const router = express.Router()
 
 // 对所有路由进行jwt认证
-router.use(jwtAuth)
+// router.use(jwtAuth)
 
 router.get('/', function(req, res) {
     res.send('这是WebServer服务器')

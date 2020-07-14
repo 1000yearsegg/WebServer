@@ -1,6 +1,6 @@
 const { env } = require('./env')
 const UPLOAD_PATH = env === 'dev' ? 
-    '/Users/apple/upload/admin-upload-ebook' :
+    '/Users/apple/upload' :
     '/root/upload/admin-upload-ebook';
 
 const UPLOAD_URL = env === 'dev' ? 
